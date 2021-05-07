@@ -1,3 +1,6 @@
+from Supplier_page import *
+from view_page import *
+from bill_page import *
 from tkinter import *
 from tkinter import messagebox
 
