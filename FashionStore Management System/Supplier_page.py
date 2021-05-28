@@ -1,6 +1,5 @@
 from tkinter import *
 from tkinter import ttk
-import sqlite3
 
 def sup_list():
     global supp
@@ -12,7 +11,7 @@ def sup_list():
     SupplierPage()
 
 def SupplierPage():
-    global Tree
+    global tree
     global supp_name
     global pan_no
     global contact
