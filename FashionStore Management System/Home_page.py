@@ -1,15 +1,12 @@
-from Supplier_page import *
-from view_page import *
 from bill_page import *
+from supplier import *
+from viewpage import *
 from tkinter import *
 from tkinter import messagebox
 
-def close():
-    end = messagebox.askquestion('Confirm Exit', 'Are you sure you want to exit?', icon="warning")
-    if end == 'yes':
-        Home.destroy()
-        exit()
-
+# Function to create a frame
+# and various types of menus
+# and set the configuration of home page.
 def Home():
     global Home
     Home = Tk()
@@ -39,3 +36,9 @@ def Home():
     Home.config(menu=menubar)
     Home.config(bg="#ffffff")
 
+def close():
+    """ Function defined by close to close the home page."""
+    end = messagebox.askquestion('Confirm Exit', 'Are you sure you want to exit?', icon="warning")
+    if end == 'yes':
+        Home.destroy()
+        exit()
