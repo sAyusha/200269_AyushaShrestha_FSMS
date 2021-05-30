@@ -1,4 +1,3 @@
-from bill_page import *
 from supplier import *
 from viewpage import *
 from tkinter import *
@@ -21,17 +20,14 @@ def Home():
     menubar = Menu(Home)
     filemenu1 = Menu(menubar, tearoff=0)
     filemenu2 = Menu(menubar, tearoff=0)
-    filemenu3 = Menu(menubar, tearoff=0)
 
     menubar.add_cascade(label="Account", menu=filemenu1)
     menubar.add_cascade(label="Store", menu=filemenu2)
-    menubar.add_cascade(label="Billing",menu=filemenu3)
 
     filemenu1.add_command(label="Exit",command=close)
 
     filemenu2.add_command(label="Product",command=click)
     filemenu2.add_command(label="Supplier",command=sup_list)
-    filemenu3.add_command(label="BillInsert",command=Bill)
 
     Home.config(menu=menubar)
     Home.config(bg="#ffffff")
