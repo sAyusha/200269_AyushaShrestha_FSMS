@@ -9,7 +9,7 @@ def click():
     view=Toplevel()
     view.title("Product Page")
     view.iconbitmap("D:/img/fashion.ico")
-    view.geometry("850x450")
+    view.geometry("1000x550")
     view.config(bg="#ffffff")
     ViewPage()
 
@@ -19,23 +19,35 @@ def database():
     product_db=sqlite3.connect("products.db")
     c=product_db.cursor()
     c.execute(
-       "CREATE TABLE IF NOT EXISTS ProductItem(id INTEGER PRIMARY KEY, name TEXT, price TEXT, quantity TEXT)")
+        "CREATE TABLE IF NOT EXISTS ProductItem(id INTEGER PRIMARY KEY, name TEXT, price TEXT, quantity TEXT, total TEXT)")
     product_db.commit()
     product_db.close()
 
 # Inserting Various Data.
 def AddItems():
+    database()
     product_db = sqlite3.connect("products.db")
     c = product_db.cursor()
-    c.execute("INSERT INTO ProductItem (id, name, price, quantity) VALUES(?,?,?,?)",
-              (product_id.get(), prd_name.get(), prd_price.get(),qnty.get()))
+    c.execute("INSERT INTO ProductItem (id, name, price, quantity,total) VALUES(?,?,?,?,?)",
+              (product_id.get(), prd_name.get(), prd_price.get(),qnty.get(),totalAmount.get()))
     product_db.commit()
     product_id.set("")
     prd_name.set("")
     prd_price.set("")
     qnty.set("")
+    totalAmount.set("")
     c.close()
     product_db.close()
+
+def onclick_focusin(event):
+    database()
+    price_val = int(price_ety.get())
+    quan_val = int(quantity_ety.get())
+    tot = price_val * quan_val
+    if total_amt_ety.get() == "":
+        total_amt_ety.insert(0, tot)
+        total_amt_ety.config(fg='black')
+        print(type(tot))
 
 # Function to create a frame
 # and set the configuration
@@ -46,6 +58,13 @@ def ViewPage():
     global prd_name
     global prd_price
     global qnty
+    global totalAmount
+
+    global id_ety
+    global name_ety
+    global price_ety
+    global quantity_ety
+    global total_amt_ety
 
     frame1=Frame(view,width=300,relief=SOLID,bd=1)
     frame1.pack(side=TOP,fill=X)
@@ -60,8 +79,8 @@ def ViewPage():
     frame3.pack(side=RIGHT)
     x = Scrollbar(frame3, orient=HORIZONTAL)
     y = Scrollbar(frame3, orient=VERTICAL)
-    tree = ttk.Treeview(frame3, columns=(1, 2, 3, 4), show="headings",
-                        selectmode="extended", height=100, yscrollcommand=y.set, xscrollcommand=x.set)
+    tree = ttk.Treeview(frame3, columns=(1, 2, 3, 4, 5), show="headings",
+                        selectmode="extended", height=200, yscrollcommand=y.set, xscrollcommand=x.set)
     y.config(command=tree.yview)
     y.pack(side=RIGHT, fill=Y)
     x.config(command=tree.xview)
@@ -70,16 +89,19 @@ def ViewPage():
     tree.heading(2, text='Product Name')
     tree.heading(3, text='Sell Price')
     tree.heading(4, text='Quantity')
-    tree.column(1, stretch=YES, width=156)
+    tree.heading(5, text='Total Amount')
+    tree.column(1, stretch=YES, width=130)
     tree.column(2, stretch=YES, width=230)
-    tree.column(3, stretch=YES, width=150)
+    tree.column(3, stretch=YES, width=160)
     tree.column(4, stretch=YES, width=150)
+    tree.column(5, stretch=YES, width=170)
     tree.pack()
 
     product_id=StringVar()
     prd_price=StringVar()
     prd_name=StringVar()
     qnty=StringVar()
+    totalAmount=StringVar()
 
     id = Label(frame2, text="Product ID:",font=("Calibre",9),bg="#e0f7fa")
     id.pack(side=TOP,padx=10,anchor=W)
@@ -101,7 +123,16 @@ def ViewPage():
     quantity_ety = Entry(frame2, text=qnty, bg="#ffffff")
     quantity_ety.pack(side=TOP, padx=10, pady=1, fill=X)
 
-    s_btn = Button(frame2, text="Display", bg="#e0f7fa",command=ShowItems)
+    total_amt = Label(frame2, text="Total:", font=("Calibre", 9), bg="#e0f7fa")
+    total_amt.pack(side=TOP, padx=10, anchor=W)
+    total_amt_ety = Entry(frame2, text=totalAmount, bg="#ffffff")
+    total_amt_ety.pack(side=TOP, padx=10, pady=1, fill=X)
+    total_amt_ety.insert(0, '')
+    total_amt_ety.bind("<FocusIn>", onclick_focusin)
+
+    v_btn = Button(frame2, text="Display", bg="#e0f7fa",command=ShowItems)
+    v_btn.pack(side=TOP, padx=20, pady=5, fill=X)
+    s_btn = Button(frame2, text="Search", bg="#e0f7fa", command=SearchItems)
     s_btn.pack(side=TOP, padx=20, pady=5, fill=X)
     add_btn = Button(frame2, text="Add", bg="#e0f7fa",command=AddItems)
     add_btn.pack(side=TOP, padx=20, pady=3, fill=X)
@@ -109,6 +140,11 @@ def ViewPage():
     updt_btn.pack(side=TOP, padx=20, pady=3, fill=X)
     dlt_btn = Button(frame2, text="Delete", bg="#e0f7fa",command=DeleteItems)
     dlt_btn.pack(side=TOP, padx=20, pady=3, fill=X)
+
+def clear():
+    global tree
+    for records in tree.get_children():
+        tree.delete(records)
 
 # Display the items.
 def ShowItems():
@@ -122,12 +158,25 @@ def ShowItems():
         tree.insert("", END, values=row)
     product_db.close()
 
+def SearchItems():
+    database()
+    clear()
+    product_db = sqlite3.connect("products.db")
+    c = product_db.cursor()
+    c.execute("SELECT * FROM ProductItem WHERE name=? OR price=? OR quantity=? OR total=?",
+              (prd_name.get(),prd_price.get(),qnty.get(),totalAmount.get()))
+    rows = c.fetchall()
+    for row in rows:
+        tree.insert("", END, values=row)
+    product_db.close()
+
 # Modify the selected item in the table.
 def UpdateItems():
     database()
     product_db=sqlite3.connect("products.db")
     c=product_db.cursor()
-    c.execute("UPDATE ProductItem set id=?,name=?,price=?,quantity=? WHERE id=?",(product_id.get(),prd_name.get(),prd_price.get(),qnty.get(),product_id.get()))
+    c.execute("UPDATE ProductItem set id=?,name=?,price=?,quantity=?,total=? WHERE id=?",
+              (product_id.get(),prd_name.get(),prd_price.get(),qnty.get(),totalAmount.get(),product_id.get()))
     product_db.commit()
     c.close()
     product_db.close()
@@ -142,3 +191,13 @@ def DeleteItems():
     c.close()
     product_db.close()
 
+def purchase_amount():
+    database()
+    product_db = sqlite3.connect("products.db")
+    c = product_db.cursor()
+    sum = c.execute("SELECT name, sum(total) FROM ProductItem")
+    total = sum.fetchall()
+    for x in total:
+        print(x)
+    product_db.commit()
+    product_db.close()
