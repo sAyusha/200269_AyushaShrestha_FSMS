@@ -29,24 +29,62 @@ def AddItems():
     product_db = sqlite3.connect("products.db")
     c = product_db.cursor()
     c.execute("INSERT INTO ProductItem (id, name, price, quantity,total) VALUES(?,?,?,?,?)",
-              (product_id.get(), prd_name.get(), prd_price.get(),qnty.get(),totalAmount.get()))
+              (product_id.get(), prd_name.get(), prd_price.get(), qnty.get(), totalAmount.get()))
     product_db.commit()
     product_id.set("")
     prd_name.set("")
     prd_price.set("")
     qnty.set("")
     totalAmount.set("")
+    ShowItems()
     c.close()
     product_db.close()
 
-def onclick_focusin(event):
+# Display the selected row from table into entry box.
+# Exception handling keywords handles the error that is to be occurred.
+def displaySelectedRow(event):
     database()
-    price_val = int(price_ety.get())
-    quan_val = int(quantity_ety.get())
-    tot = price_val * quan_val
-    if total_amt_ety.get() == "":
-        total_amt_ety.insert(0, tot)
-        total_amt_ety.config(fg='black')
+    try:
+        global row_selection
+        row_selection = tree.selection()
+        for i in row_selection:
+            set_out_item = tree.item(i)
+            row_values = set_out_item['values']
+
+            global Product_ID
+            Product_ID = row_values[0]
+            Product_Name = row_values[1]
+            Product_Price = row_values[2]
+            Product_Quantity = row_values[3]
+            ProductTotalAmount = row_values[4]
+
+            id_ety.delete(0, 'end')
+            id_ety.insert(END, Product_ID)
+
+            name_ety.delete(0, 'end')
+            name_ety.insert(END, Product_Name)
+
+            price_ety.delete(0, 'end')
+            price_ety.insert(END, Product_Price)
+
+            quantity_ety.delete(0, 'end')
+            quantity_ety.insert(END, Product_Quantity)
+
+            total_amount_ety.delete(0, 'end')
+            total_amount_ety.insert(END, ProductTotalAmount)
+
+    except Exception as e:
+        print(e)
+        pass
+
+def focusin_onclick(event):
+    database()
+    price_value = int(price_ety.get())
+    quantity_value = int(quantity_ety.get())
+    tot = price_value * quantity_value
+    if total_amount_ety.get() == "":
+        total_amount_ety.insert(0, tot)
+        total_amount_ety.config(fg='black')
         print(type(tot))
 
 # Function to create a frame
@@ -64,17 +102,18 @@ def ViewPage():
     global name_ety
     global price_ety
     global quantity_ety
-    global total_amt_ety
+    global total_amount_ety
 
     frame1=Frame(view,width=300,relief=SOLID,bd=1)
     frame1.pack(side=TOP,fill=X)
-    label1=Label(frame1,text="View Products List", font=('arial', 15), width=300,bg="#e0f7fa")
+    label1=Label(frame1,text="View Products List", font=('arial', 15), width=300,bg="#eeeeee")
     label1.pack(fill=X)
-    frame2=Frame(view, width=100,bg="#e0f7fa")
+    frame2=Frame(view, width=100,bg="#eeeeee")
     frame2.pack(side=LEFT, fill=Y)
-    label2 = Label(frame2, text="Fashion Store", font=('calibre', 11),bg="#e0f7fa")
+    label2 = Label(frame2, text="Fashion Store", font=('calibre', 11),bg="#eeeeee")
     label2.pack(side=TOP)
 
+    # Tree View represents the data hierarchically and gives an improved look to the data columns.
     frame3 = Frame(view, width=600)
     frame3.pack(side=RIGHT)
     x = Scrollbar(frame3, orient=HORIZONTAL)
@@ -96,6 +135,7 @@ def ViewPage():
     tree.column(4, stretch=YES, width=150)
     tree.column(5, stretch=YES, width=170)
     tree.pack()
+    tree.bind('<Double-1>', displaySelectedRow)
 
     product_id=StringVar()
     prd_price=StringVar()
@@ -103,44 +143,47 @@ def ViewPage():
     qnty=StringVar()
     totalAmount=StringVar()
 
-    id = Label(frame2, text="Product ID:",font=("Calibre",9),bg="#e0f7fa")
+    id = Label(frame2, text="Product ID:",font=("Calibre",9),bg="#eeeeee")
     id.pack(side=TOP,padx=10,anchor=W)
     id_ety = Entry(frame2, text=product_id, bg="#ffffff")
     id_ety.pack(side=TOP,padx=10,pady=1,fill=X)
 
-    name = Label(frame2, text="Product Name:", font=("Calibre", 9), bg="#e0f7fa")
+    name = Label(frame2, text="Product Name:", font=("Calibre", 9), bg="#eeeeee")
     name.pack(side=TOP, padx=10, anchor=W)
     name_ety = Entry(frame2, text=prd_name, bg="#ffffff")
     name_ety.pack(side=TOP, padx=10, pady=1, fill=X)
 
-    price = Label(frame2, text="Product Price:", font=("Calibre", 9), bg="#e0f7fa")
+    price = Label(frame2, text="Product Price:", font=("Calibre", 9), bg="#eeeeee")
     price.pack(side=TOP, padx=10, anchor=W)
     price_ety = Entry(frame2, text=prd_price, bg="#ffffff")
     price_ety.pack(side=TOP, padx=10, pady=1, fill=X)
 
-    quantity = Label(frame2, text="Quantity:", font=("Calibre", 9), bg="#e0f7fa")
+    quantity = Label(frame2, text="Quantity:", font=("Calibre", 9), bg="#eeeeee")
     quantity.pack(side=TOP, padx=10, anchor=W)
     quantity_ety = Entry(frame2, text=qnty, bg="#ffffff")
     quantity_ety.pack(side=TOP, padx=10, pady=1, fill=X)
 
-    total_amt = Label(frame2, text="Total:", font=("Calibre", 9), bg="#e0f7fa")
-    total_amt.pack(side=TOP, padx=10, anchor=W)
-    total_amt_ety = Entry(frame2, text=totalAmount, bg="#ffffff")
-    total_amt_ety.pack(side=TOP, padx=10, pady=1, fill=X)
-    total_amt_ety.insert(0, '')
-    total_amt_ety.bind("<FocusIn>", onclick_focusin)
+    total_amount = Label(frame2, text="Total:", font=("Calibre", 9), bg="#eeeeee")
+    total_amount.pack(side=TOP, padx=10, anchor=W)
+    total_amount_ety = Entry(frame2, text=totalAmount, bg="#ffffff")
+    total_amount_ety.pack(side=TOP, padx=10, pady=1, fill=X)
+    total_amount_ety.insert(0, "")
+    total_amount_ety.bind("<FocusIn>", focusin_onclick)
 
-    v_btn = Button(frame2, text="Display", bg="#e0f7fa",command=ShowItems)
+    v_btn = Button(frame2, text="Display", bg="#000000", fg="#ffffff", command=ShowItems)
     v_btn.pack(side=TOP, padx=20, pady=5, fill=X)
-    s_btn = Button(frame2, text="Search", bg="#e0f7fa", command=SearchItems)
+    s_btn = Button(frame2, text="Search", bg="#000000", fg="#ffffff", command=SearchItems)
     s_btn.pack(side=TOP, padx=20, pady=5, fill=X)
-    add_btn = Button(frame2, text="Add", bg="#e0f7fa",command=AddItems)
+    add_btn = Button(frame2, text="Add", bg="#000000", fg="#ffffff", command=AddItems)
     add_btn.pack(side=TOP, padx=20, pady=3, fill=X)
-    updt_btn = Button(frame2, text="Update", bg="#e0f7fa",command=UpdateItems)
+    updt_btn = Button(frame2, text="Update", bg="#000000", fg="#ffffff", command=UpdateItems)
     updt_btn.pack(side=TOP, padx=20, pady=3, fill=X)
-    dlt_btn = Button(frame2, text="Delete", bg="#e0f7fa",command=DeleteItems)
+    dlt_btn = Button(frame2, text="Delete", bg="#000000", fg="#ffffff", command=DeleteItems)
     dlt_btn.pack(side=TOP, padx=20, pady=3, fill=X)
+    total_bill_btn = Button(frame2, text="Total", bg="#000000", fg="#ffffff", command=TotalBill)
+    total_bill_btn.pack(side=TOP, padx=20, pady=3, fill=X)
 
+# Clear the data that are in the table.
 def clear():
     global tree
     for records in tree.get_children():
@@ -158,6 +201,7 @@ def ShowItems():
         tree.insert("", END, values=row)
     product_db.close()
 
+# Display particular data that we search for.
 def SearchItems():
     database()
     clear()
@@ -191,7 +235,8 @@ def DeleteItems():
     c.close()
     product_db.close()
 
-def purchase_amount():
+# Display the total amount of particular item purchase.
+def TotalAmount():
     database()
     product_db = sqlite3.connect("products.db")
     c = product_db.cursor()
@@ -201,3 +246,15 @@ def purchase_amount():
         print(x)
     product_db.commit()
     product_db.close()
+
+# Display the total bill of all the item purchase.
+def TotalBill():
+    database()
+    product_db = sqlite3.connect("products.db")
+    c = product_db.execute('select sum(total) from ProductItem')
+    total = 0
+    for row in c:
+        total = row[0]
+    print(total)
+    tree.insert('', 'end', text="---------", values=('----------', '---------', '---------', 'Total = ', total))
+    product_db.commit()
