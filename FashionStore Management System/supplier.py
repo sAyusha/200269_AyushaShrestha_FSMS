@@ -8,7 +8,7 @@ def sup_list():
     supp=Toplevel()
     supp.title("Supplier Details Page")
     supp.iconbitmap("D:/img/fashion.ico")
-    supp.geometry("850x450")
+    supp.geometry("950x550")
     supp.config(bg="#ffffff")
     SupplierPage()
 
@@ -54,12 +54,14 @@ def SupplierPage():
     supplier_frame2.pack(side=LEFT, fill=Y)
     supplier_label2 = Label(supplier_frame2, text="Suppliers", font=('Roboto', 12),bg="#000000",fg="#ffffff")
     supplier_label2.pack(side=TOP)
+
+    # Tree View represents the data hierarchically and gives an improved look to the data columns.
     supplier_frame3=Frame(supp,width=500)
     supplier_frame3.pack(side=RIGHT)
     x = Scrollbar(supplier_frame3, orient=HORIZONTAL)
     y = Scrollbar(supplier_frame3, orient=VERTICAL)
     tree = ttk.Treeview(supplier_frame3, columns=(1,2,3,4), show="headings",
-                        selectmode="extended", height=20, yscrollcommand=y.set, xscrollcommand=x.set)
+                        selectmode="extended", height=100, yscrollcommand=y.set, xscrollcommand=x.set)
     y.config(command=tree.yview)
     y.pack(side=RIGHT,fill=Y)
     x.config(command=tree.xview)
@@ -68,10 +70,10 @@ def SupplierPage():
     tree.heading(2, text='Supplier Name')
     tree.heading(3, text='Pan No')
     tree.heading(4, text='Contact No')
-    tree.column(1, stretch=YES, width=156)
+    tree.column(1, stretch=YES, width=150)
     tree.column(2, stretch=YES, width=250)
-    tree.column(3, stretch=YES, width=150)
-    tree.column(4, stretch=YES, width=150)
+    tree.column(3, stretch=YES, width=200)
+    tree.column(4, stretch=YES, width=200)
     tree.pack()
 
     supplier_id=StringVar()
@@ -79,13 +81,13 @@ def SupplierPage():
     pan_no=StringVar()
     contact_no=StringVar()
 
-    supplier_id = Label(supplier_frame2, text="Supplier ID:",font=("Calibre",9),bg="#000000",fg="#ffffff")
-    supplier_id.pack(side=TOP,padx=10,anchor=W)
+    supplier_id_label = Label(supplier_frame2, text="Supplier ID:",font=("Calibre",9),bg="#000000",fg="#ffffff")
+    supplier_id_label.pack(side=TOP,padx=10,anchor=W)
     id_entry = Entry(supplier_frame2, text=supplier_id, bg="#ffffff")
     id_entry.pack(side=TOP,padx=10,pady=1,fill=X)
 
-    supplier_name = Label(supplier_frame2, text="Supplier Name:",font=("Calibre",9),bg="#000000",fg="#ffffff")
-    supplier_name.pack(side=TOP,padx=10,anchor=W)
+    supplier_name_label = Label(supplier_frame2, text="Supplier Name:",font=("Calibre",9),bg="#000000",fg="#ffffff")
+    supplier_name_label.pack(side=TOP,padx=10,anchor=W)
     name_ety = Entry(supplier_frame2, text=supplier_name, bg="#ffffff")
     name_ety.pack(side=TOP,padx=10,pady=1,fill=X)
 
@@ -103,10 +105,18 @@ def SupplierPage():
     view_btn.pack(side=TOP,padx=20,pady=5,fill=X)
     add_btn = Button(supplier_frame2, text="Add",bg="#fb8c00",fg="#ffffff",command=Insert)
     add_btn.pack(side=TOP,padx=20,pady=3,fill=X)
+    search_btn = Button(supplier_frame2, text="Search", bg="#fb8c00", fg="#ffffff", command=Search)
+    search_btn.pack(side=TOP, padx=20, pady=3, fill=X)
     update_btn = Button(supplier_frame2, text="Update",bg="#fb8c00",fg="#ffffff",command=Update)
     update_btn.pack(side=TOP, padx=20, pady=3, fill=X)
     clear_btn = Button(supplier_frame2, text="Clear",bg="#fb8c00",fg="#ffffff",command=Delete)
     clear_btn.pack(side=TOP, padx=20, pady=3, fill=X)
+
+# Clear the data that are in the table.
+def clear():
+    global tree
+    for records in tree.get_children():
+        tree.delete(records)
 
 # Display the various data.
 def View():
@@ -125,9 +135,23 @@ def Update():
     database2()
     supp_db=sqlite3.connect("suppliers.db")
     c=supp_db.cursor()
-    c.execute("UPDATE SupplierDetails set id=?,name=?,pan=?,contact=? WHERE id=?",(supplier_id.get(),supplier_name.get(),pan_no.get(),contact_no.get(),supplier_id.get()))
+    c.execute("UPDATE SupplierDetails set id=?,name=?,pan=?,contact=? WHERE id=?",
+              (supplier_id.get(), supplier_name.get(), pan_no.get(), contact_no.get(), supplier_id.get()))
     supp_db.commit()
     c.close()
+    supp_db.close()
+
+# Display particular data that we search for.
+def Search():
+    database2()
+    clear()
+    supp_db = sqlite3.connect("suppliers.db")
+    c = supp_db.cursor()
+    c.execute("SELECT * FROM SupplierDetails WHERE name=? OR pan=? OR contact=?",
+              (supplier_name.get(), pan_no.get(), contact_no.get()))
+    rows = c.fetchall()
+    for row in rows:
+        tree.insert("", END, values=row)
     supp_db.close()
 
 # Delete the selected data from the table.
@@ -135,8 +159,7 @@ def Delete():
     database2()
     supp_db = sqlite3.connect("suppliers.db")
     c = supp_db.cursor()
-    c.execute('DELETE FROM SupplierDetails WHERE id = ?',(supplier_id.get(),))
+    c.execute('DELETE FROM SupplierDetails WHERE id = ?', (supplier_id.get(),))
     supp_db.commit()
     c.close()
     supp_db.close()
-
