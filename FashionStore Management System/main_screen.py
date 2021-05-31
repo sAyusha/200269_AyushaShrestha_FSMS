@@ -1,13 +1,22 @@
-from Home_page import *
 from tkinter import *
 from tkinter import messagebox
+from Home_page import *
 from PIL import ImageTk
 
 # Create the main screen and set its configuration.
 window=Tk()
 window.title("Management System")
 window.iconbitmap("D:/img/fashion.ico")
-window.geometry("410x300")
+width = 410
+height = 300
+screen_width = window.winfo_screenwidth()
+screen_height = window.winfo_screenheight()
+x = (screen_width / 2) - (width / 2)
+y = (screen_height / 2) - (height / 2)
+window.geometry("%dx%d+%d+%d" % (width, height, x, y))
+window.resizable(0, 0)
+window.config()
+
 
 bg = ImageTk.PhotoImage(file="D:/img/fashion1.jpg")
 bg_label = Label(window, image=bg)
@@ -29,7 +38,15 @@ def Login_here():
     login=Toplevel()
     login.title("Login Page")
     login.iconbitmap("D:/img/fashion.ico")
-    login.geometry("370x334")
+    width = 370
+    height = 334
+    screen_width = login.winfo_screenwidth()
+    screen_height = login.winfo_screenheight()
+    x = (screen_width / 2) - (width / 2)
+    y = (screen_height / 2) - (height / 2)
+    login.geometry("%dx%d+%d+%d" % (width, height, x, y))
+    login.resizable(0, 0)
+    login.config()
     LoginPage()
 
 # create the various types of menu
@@ -62,6 +79,7 @@ def LoginPage():
     global pwd_entry
     global username
     global password
+    global output
 
     username=StringVar()
     password=StringVar()
@@ -72,26 +90,27 @@ def LoginPage():
     usr_entry=Entry(log_frame,text=username,bg="#ffffff")
     usr_entry.place(x=25,y=95,width=190,height=24)
 
-    # defining and kepping the password login and entry box in particular place inside login frame.
+    # defining and keeping the password login and entry box in particular place inside login frame.
     pass_word=Label(log_frame,text="Password",bg="#ffffff",font=("Times New Roman",12),fg="#212121")
     pass_word.place(x=25,y=125)
     pwd_entry=Entry(log_frame,text=password,bg="#ffffff",show="*")
     pwd_entry.place(x=25,y=150,width=190,height=24)
-
+    output = Label(login, text="", font=('Times New Roman', 11))
+    output.place(x=70,y=280)
     log_button=Button(login,text="Login",font=("Times New Roman",14),bg="#006064",fg="#ffffff",command=login_button)
     log_button.place(x=147,y=248,width=70,height=25)
     log_button.bind('<Return>', login_button)
 
+# function to authenticate the login credentials details with login button.
 def login_button():
-    """ Function that gets called when entry is clicked."""
     usr = username.get()
     pw = password.get()
     if usr == "admin" and pw == "admin1":
         ShowHome()
     elif usr == "" and pw == "":
-        messagebox.showinfo("", "cannot be kept empty")
+        output.config(text="Please enter the credentials to login!", fg="#000000")
     else:
-        messagebox.showinfo("", "invalid username or password")
+        output.config(text="Invalid username and password!!", fg="#000000")
 
 def ShowHome():
     """ Function that is defined by ShowHome to display home page and close login page. """
