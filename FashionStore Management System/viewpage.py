@@ -9,36 +9,17 @@ def click():
     view=Toplevel()
     view.title("Product Page")
     view.iconbitmap("D:/img/fashion.ico")
-    view.geometry("1000x550")
+    width = 1000
+    height = 550
+    screen_width = view.winfo_screenwidth()
+    screen_height = view.winfo_screenheight()
+    x = (screen_width / 2) - (width / 2)
+    y = (screen_height / 2) - (height / 2)
+    view.geometry("%dx%d+%d+%d" % (width, height, x, y))
+    view.resizable(0, 0)
+    view.config()
     view.config(bg="#ffffff")
     ViewPage()
-
-# Creating a database for product page.
-def database():
-    global product_db, c
-    product_db=sqlite3.connect("products.db")
-    c=product_db.cursor()
-    c.execute(
-        "CREATE TABLE IF NOT EXISTS ProductItem(id INTEGER PRIMARY KEY, name TEXT, price TEXT, quantity TEXT, total TEXT)")
-    product_db.commit()
-    product_db.close()
-
-# Inserting Various Data.
-def AddItems():
-    database()
-    product_db = sqlite3.connect("products.db")
-    c = product_db.cursor()
-    c.execute("INSERT INTO ProductItem (id, name, price, quantity,total) VALUES(?,?,?,?,?)",
-              (product_id.get(), prd_name.get(), prd_price.get(), qnty.get(), totalAmount.get()))
-    product_db.commit()
-    product_id.set("")
-    prd_name.set("")
-    prd_price.set("")
-    qnty.set("")
-    totalAmount.set("")
-    ShowItems()
-    c.close()
-    product_db.close()
 
 # Display the selected row from table into entry box.
 # Exception handling keywords handles the error that is to be occurred.
@@ -77,6 +58,7 @@ def displaySelectedRow(event):
         print(e)
         pass
 
+# Gives the total calculation of the purchase automatically on entry box by clicking it.
 def focusin_onclick(event):
     database()
     price_value = int(price_ety.get())
@@ -183,6 +165,33 @@ def ViewPage():
     total_bill_btn = Button(frame2, text="Total", bg="#000000", fg="#ffffff", command=TotalBill)
     total_bill_btn.pack(side=TOP, padx=20, pady=3, fill=X)
 
+# Create the database for the list of product details.
+def database():
+    global product_db, c
+    product_db=sqlite3.connect("products.db")
+    c=product_db.cursor()
+    c.execute(
+        "CREATE TABLE IF NOT EXISTS ProductItem(id INTEGER PRIMARY KEY, name TEXT, price TEXT, quantity TEXT, total TEXT)")
+    product_db.commit()
+    product_db.close()
+
+# Inserting Various Data.
+def AddItems():
+    database()
+    product_db = sqlite3.connect("products.db")
+    c = product_db.cursor()
+    c.execute("INSERT INTO ProductItem (id, name, price, quantity,total) VALUES(?,?,?,?,?)",
+              (product_id.get(), prd_name.get(), prd_price.get(), qnty.get(), totalAmount.get()))
+    product_db.commit()
+    product_id.set("")
+    prd_name.set("")
+    prd_price.set("")
+    qnty.set("")
+    totalAmount.set("")
+    ShowItems()
+    c.close()
+    product_db.close()
+
 # Clear the data that are in the table.
 def clear():
     global tree
@@ -240,10 +249,10 @@ def TotalAmount():
     database()
     product_db = sqlite3.connect("products.db")
     c = product_db.cursor()
-    sum = c.execute("SELECT name, sum(total) FROM ProductItem")
+    sum = c.execute("SELECT sum(total) FROM ProductItem")
     total = sum.fetchall()
     for x in total:
-        print(x)
+        return(x[0])
     product_db.commit()
     product_db.close()
 
@@ -258,3 +267,14 @@ def TotalBill():
     print(total)
     tree.insert('', 'end', text="---------", values=('----------', '---------', '---------', 'Total = ', total))
     product_db.commit()
+
+# Create for counting the report of total products.
+def count_products():
+    product_db = sqlite3.connect("products.db")
+    c = product_db.cursor()
+    count_prod =c.execute("SELECT COUNT(DISTINCT name) FROM ProductItem")
+    count_num = count_prod.fetchall()
+    for num in count_num:
+        return num
+    product_db.commit()
+    product_db.close()
