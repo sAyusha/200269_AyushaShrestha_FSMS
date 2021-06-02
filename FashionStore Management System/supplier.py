@@ -7,7 +7,7 @@ def sup_list():
     global supplier
     supplier=Toplevel()
     supplier.title("Supplier Details Page")
-    supplier.iconbitmap("D:/img/fashion.ico")
+    supplier.iconbitmap("D:/200269_AyushaShrestha_FSMS-master/fashion.ico")
     width = 950
     height = 550
     screen_width = supplier.winfo_screenwidth()

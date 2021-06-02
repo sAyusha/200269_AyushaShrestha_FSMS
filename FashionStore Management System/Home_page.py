@@ -82,6 +82,7 @@ def Home():
     Home.config(menu=menubar)
     Home.config(bg="#ffffff")
 
+
 def close():
     """ Function defined by close to close the home page."""
     end = messagebox.askquestion('Confirm Exit', 'Are you sure you want to exit?', icon="warning")

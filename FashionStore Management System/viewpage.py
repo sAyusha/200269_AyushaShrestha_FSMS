@@ -8,7 +8,7 @@ def click():
     global view
     view=Toplevel()
     view.title("Product Page")
-    view.iconbitmap("D:/img/fashion.ico")
+    view.iconbitmap("D:/200269_AyushaShrestha_FSMS-master/fashion.ico")
     width = 1000
     height = 550
     screen_width = view.winfo_screenwidth()

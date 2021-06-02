@@ -18,7 +18,7 @@ window.resizable(0, 0)
 window.config()
 
 
-bg = ImageTk.PhotoImage(file="D:/img/fashion1.jpg")
+bg = ImageTk.PhotoImage(file="D:/200269_AyushaShrestha_FSMS-master/fashion1.jpg")
 bg_label = Label(window, image=bg)
 bg_label.place(x=0, y=0, relwidth=1, relheight=1)
 
